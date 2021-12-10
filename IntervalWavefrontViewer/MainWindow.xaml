@@ -1,0 +1,131 @@
+﻿<Window x:Class="IntervalWavefront.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:MyWPF="clr-namespace:MyUtilities.WPF;assembly=WpfLibrary"
+		xmlns:MyForms="clr-namespace:MyUtilities;assembly=MyUtilities.SharpDX"
+		AllowDrop="True" DragEnter="Window_DragEnter" Drop="Window_Drop"
+		Title="MainWindow" FontFamily="Segoe UI" Width="1400" Height="800">
+	<Window.Resources>
+		<Style TargetType="CheckBox">
+			<Setter Property="VerticalAlignment" Value="Center"/>
+		</Style>
+	</Window.Resources>
+	<DockPanel>
+		<DockPanel.LayoutTransform>
+			<ScaleTransform ScaleX="1.25" ScaleY="1.25"/>
+		</DockPanel.LayoutTransform>
+
+		<TabControl DockPanel.Dock="Right" Width="240" Focusable="False">
+			<TabItem Header="Properties">
+				<ListView Name="PropertiesListView">
+					<ListView.View>
+						<GridView>
+							<GridViewColumn Width="90" Header="Property" DisplayMemberBinding="{Binding Property}"/>
+							<GridViewColumn Width="134" Header="Value" DisplayMemberBinding="{Binding Value}"/>
+						</GridView>
+					</ListView.View>
+				</ListView>
+			</TabItem>
+			<TabItem Header="Intervals">
+				<ListBox Name="IntervalListBox" SelectionChanged="IntervalListBox_SelectionChanged"/>
+			</TabItem>
+			<TabItem Header="History">
+				<DockPanel>
+					<ListView DockPanel.Dock="Top" Name="EventCountListView">
+						<ListView.View>
+							<GridView>
+								<GridViewColumn Width="134" Header="Type" DisplayMemberBinding="{Binding Name}"/>
+								<GridViewColumn Width="90" Header="Count" DisplayMemberBinding="{Binding Value}"/>
+							</GridView>
+						</ListView.View>
+					</ListView>
+					<ListBox Name="HistoryListBox" SelectionChanged="HistoryListBox_SelectionChanged"/>
+				</DockPanel>
+			</TabItem>
+			<TabItem Name="ExceptionTabItem" Header="Exception">
+				<TextBlock Name="ExceptionTextBlock" TextWrapping="Wrap"/>
+			</TabItem>
+		</TabControl>
+
+		<StackPanel DockPanel.Dock="Right" Width="262">
+			<GroupBox Header="Model">
+				<StackPanel>
+					<ListBox Name="ModelListBox" Height="180" SelectionChanged="ModelListBox_SelectionChanged"/>
+					<MyWPF:StepperPanel
+						Name="SubdivideStepperPanel" Caption="Subdivide" Maximum="5"
+						ValueChanged="SubdivideStepperPanel_ValueChanged"/>
+					<UniformGrid Columns="4">
+						<Label Name="VertexCountLabel" HorizontalContentAlignment="Right"/>
+						<Label Content="Vertices"/>
+						<Label Name="FaceCountLabel" HorizontalContentAlignment="Right"/>
+						<Label Content="Faces"/>
+					</UniformGrid>
+				</StackPanel>
+			</GroupBox>
+			<GroupBox Header="Rendering">
+				<StackPanel>
+					<UniformGrid Columns="2">
+						<CheckBox Name="DrawHiddenLinesCheckBox" Content="Draw Hidden Lines" IsChecked="True"
+							Checked="OnParameterChanged" Unchecked="OnParameterChanged"/>
+						<CheckBox Name="DrawIndicesCheckBox" Content="Draw Indices" IsChecked="False"
+							Checked="OnParameterChanged" Unchecked="OnParameterChanged"/>
+						<CheckBox Name="DrawSingularitiesCheckBox" Content="Draw Singularities" IsChecked="True"
+							 Checked="OnParameterChanged" Unchecked="OnParameterChanged"/>
+						<CheckBox Name="DrawFarthestPointCheckBox" Content="Draw Farthest Point" IsChecked="True"
+							Checked="OnParameterChanged" Unchecked="OnParameterChanged"/>
+						<CheckBox Name="DimLocalCutLocusCheckBox" Content="Dim Local Cut Locus" IsChecked="False"
+							Checked="OnParameterChanged" Unchecked="OnParameterChanged"/>
+					</UniformGrid>
+					<MyWPF:SliderPanel
+						Name="LineWidthSlider" Caption="Line Width" Format="0.0" Minimum="1" Maximum="5" Value="2"
+						IsEnabled="{Binding IsChecked, ElementName=Direct2DRadioButton}"
+						ValueChanged="OnParameterChanged"/>
+				</StackPanel>
+			</GroupBox>
+			<GroupBox Header="Mode">
+				<UniformGrid Columns="3">
+					<RadioButton Name="StepModeRadioButton" Content="Step"/>
+					<RadioButton Name="AnimationModeRadioButton" Content="Animation" IsChecked="True"/>
+					<RadioButton Name="ImmediateModeRadioButton" Content="Immediate"/>
+					<CheckBox Name="FastModeCheckBox" Content="Fast" IsChecked="True"/>
+				</UniformGrid>
+			</GroupBox>
+			<UniformGrid Columns="3">
+				<Button Content="Restart" Click="RestartButton_Click"/>
+				<Button Content="Back" Click="BackButton_Click"/>
+				<Button Content="Next / Pause" Click="NextOrPauseButton_Click"/>
+			</UniformGrid>
+			<Button Content="Save to SVG" Click="SaveToSVG_Click"/>
+			<Button Content="Save Unfolding to SVG" Click="SaveUnfoldingToSVG_Click"/>
+			<MyWPF:SliderPanel
+				Name="RadiusSlider" Caption="Radius" Format="0.000000" ValueChanged="RadiusSlider_ValueChanged"/>
+			<TextBox Name="SourceInformationTextBox" Text="0.5921272169 0.5474681674 0.1727222650 13"/>
+			<!--<GroupBox Header="Source Point">
+				<UniformGrid Columns="4">
+					<CheckBox Name="MidOfRadioButton" Content="Mid-"/>
+					<RadioButton Name="FaceSourceRadioButton" Content="Face" IsChecked="True"/>
+					<RadioButton Name="EdgeSourceRadioButton" Content="Edge"/>
+					<RadioButton Name="VertexSourceRadioButton" Content="Vertex"/>
+				</UniformGrid>
+			</GroupBox>-->
+			<UniformGrid Columns="2">
+				<Button Content="Copy" Click="CopySourceInformationButton_Click"/>
+				<Button Content="Paste" Click="PasteSourceInformationButton_Click"/>
+			</UniformGrid>
+			<Label Name="StepCountLabel" Content="0 Event(s) Processed" ContentStringFormat="0 Event(s) Processed"
+				HorizontalContentAlignment="Right"/>
+			<CheckBox Name="DoNotTrimCheckBox" Content="Do Not Trim (For Debugging Purpose Only)"/>
+		</StackPanel>
+
+		<WindowsFormsHost>
+			<MyForms:MyRenderControl
+				x:Name="RenderControl"
+				Resize="RenderControl_Resize"
+				Paint="RenderControl_Paint"
+				MouseDown="RenderControl_MouseDown"
+				MouseMove="RenderControl_MouseMove"
+				MouseUp="RenderControl_MouseUp"
+				MouseWheel="RenderControl_MouseWheel"/>
+		</WindowsFormsHost>
+	</DockPanel>
+</Window>
