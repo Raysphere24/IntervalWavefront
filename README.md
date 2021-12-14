@@ -16,6 +16,8 @@ To run this program, you can use the command `dotnet run --project ConsoleProgra
 # IntervalWavefrontViewer
 The project *IntervalWavefrontViewer* is a GUI application to interactively select a source point and visualize wavefront and cut locus, and some geodesics connecting the source point and interactively selected end point. It works only on Windows.
 
+![screen shot](ScreenShot.png)
+
 ## How to build
 Prerequisites: .NET Core 6.0 and Microsoft Windows.
 
